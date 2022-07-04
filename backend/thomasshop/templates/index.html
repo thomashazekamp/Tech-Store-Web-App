@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}A Shop Page{%  endblock %}
+
+{% block content %}
+   <p>These are all the current products in this shop</p>
+   <ul>
+      {% for p in products  %}
+          <li>{{ p.name }} - €{{p.price}} - {{p.description}} - <a href="/product_individual/{{p.id}}">View</a></li>
+          
+            <a href="/product_individual/{{p.id}}">
+               <img src="{{p.image.url}}" />
+            </a>
+      {% endfor %}
+   </ul>
+{% endblock %}

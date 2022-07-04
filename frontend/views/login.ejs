@@ -1,0 +1,68 @@
+<html>
+    <head>
+			<title>Login Page</title>
+    </head>
+    <body>
+        <%- include('header') -%>
+        <form style="margin: auto; width: 75%;" id="login-form">
+            <h1>Login</h1>
+            <div style="margin: 5px;" class="form-group">
+                <label for="username">Username</label>
+                <input type="text" class="form-control" id="username" placeholder="Username">
+            </div>
+            <div style="margin: 5px;" class="form-group">
+              <label for="password">Password</label>
+              <input type="password" class="form-control" id="password" placeholder="Password">
+            </div>
+            <button style="margin: 5px;" type="submit" class="btn btn-dark">Submit</button>
+          </form>
+        <script>
+            function formValidator(event){
+                event.preventDefault(); // always prevent default events when using javascript
+                // get the value the in the username box 
+                let username = document.getElementById("username").value; 
+                // get the value in the password box
+                let password = document.getElementById("password").value;
+                if( username == ""){
+                    alert("Username cannot be null");
+                    window.location.href = "/login" // back to login page if login fails
+                }
+                else if (password == ""){
+                    alert("Password cannot be null");
+                    window.location.href = "/login" // back to login page if login fails
+                }
+                else{
+                    // Fetch request to get token
+                    fetch("http://127.0.0.1:8000/api/token/", {
+                        method: 'POST',
+                        headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({username: username, password: password})
+                    }).then(response=>response.json())
+                    .then(data=>{
+                        console.log(data); // still log it so we can debug
+                        if('access' in data){
+                            //successful login
+                            let accessToken = data['access'];
+                            let refreshToken = data['refresh'];
+                            localStorage.setItem("access", accessToken);
+                            localStorage.setItem("refresh", refreshToken);
+                            //alert("form is valid");
+                            window.location.href = "/"; // the "/" is the homepage for node http://127.0.0.1:3000
+                        }
+                        else {
+                            alert("Username or password is invalid");
+                            window.location.href = "/login" // back to login page if login fails
+                        }
+                    });
+                }
+            }
+
+            let myform = document.getElementById("login-form"); // get the form
+            myform.addEventListener('submit', formValidator); // bind the validator function to the submit button for the form
+        </script>
+        <%- include('footer') -%>
+    </body>
+</html>

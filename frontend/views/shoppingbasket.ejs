@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Shopping Basket</title>
+    </head>
+    <body>
+        <%- include('header') -%>
+        <div id="basket-cont"></div>
+        <div id="order-button"></div>
+        <div id="order-link"></div>
+        <script>
+            let accessToken = localStorage.getItem("access");
+
+            fetch('http://127.0.0.1:8000/api/basket/', {
+                method: 'GET',
+                headers:{
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer '+accessToken
+                }
+            })
+            .then(resp => resp.json())
+            .then(data => {
+                if (data.length == 0) {
+                    let text = document.createElement("a");
+                    text.innerHTML = "Your shopping basket is empty";
+                    document.getElementById("basket-cont").appendChild(text);
+                } else {
+                    let basket = data[0];
+                    let basketID = basket['id'];
+                    let items = basket['items'];
+                    console.log(data.length);
+                    if (items.length == 0) { // Display text to show there is an emtpy shopping basket
+                        let text = document.createElement("a");
+                        text.innerHTML = "Your shopping basket is empty"
+                        document.getElementById("basket-cont").appendChild(text);
+                    } else { // If the shopping basket is not empty, go through each item in the shopping basket
+                        items.forEach(element => {
+                            console.log(element);
+                            let link = document.createElement("a");
+                            fetch(element['product_id']) // Will fetch all details for the certain product
+                                .then(resp => resp.json())
+                                .then(data => {
+                                    console.log(data['name']);
+                                    let total_price = data['price'] * element['quantity'];
+                                    link.innerHTML = '<div class="card" style="width: 50rem; margin: auto; margin-bottom: 1rem; margin-top: 1rem; padding-bottom: 1rem;">' +
+                                            '<img class="card-img-top" style="padding: 1rem; max-height: 70px; max-width: 70px;" src="' + data['image'] + '" alt="Product image">' +
+                                                '<div class="card-body">' +
+                                                '<h5 class="card-title">' + data['name'] + ' - ' + total_price + '€' + ' - Quantity: ' + element['quantity'] + '</h5>' +
+                                                '<p class="card-text">' + data['description'] + '</p>' +
+                                            '</div>' +
+                                            '</div>';
+
+                                })
+                            document.getElementById("basket-cont").appendChild(link);
+
+                            console.log(basketID);
+                            let productID = parseInt(element['product_id'].charAt(element['product_id'].length - 2)); // Product ID number
+                            
+                            function removeProduct(productID, accessToken){ // Remove an item from the shopping basket
+                                fetch('http://127.0.0.1:8000/apiremove/', {
+                                    method: 'POST',
+                                    headers:{
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                        'Authorization': 'Bearer '+accessToken
+                                    },
+                                    body: JSON.stringify({'product_id': productID})
+                                })
+                                .then(resp => resp.json())
+                                .then(data => {
+                                    console.log(data);
+                                })
+                                window.location.reload();
+                            
+                            }
+                            let removeButton = document.createElement("button");
+                            removeButton.innerHTML = "Remove 1 Unit";
+                            removeButton.className = "btn btn-dark";
+                            removeButton.style = "margin-left: 20rem;"
+                            removeButton.onclick = function(){removeProduct(productID, accessToken)};
+                            document.getElementById("basket-cont").appendChild(removeButton);
+                        });
+                        // Adding a link to the order page
+                        let orderLink = document.createElement("a");
+                        orderLink.innerHTML = 'Order items';
+                        orderLink.className = "btn btn-dark";
+                        orderLink.href = "http://127.0.0.1:3000/order/";
+                        orderLink.style = style="margin-left: 20rem; margin-top: 1rem; margin-bottom: 1rem;";
+                        
+                        document.getElementById("order-link").appendChild(orderLink);
+
+                    }
+                }
+            })
+        </script>
+        <%- include('footer') -%>
+    </body>
+</html>

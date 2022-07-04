@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Individual product page</title>
+    </head>
+    <body>
+        <%- include('header') -%>
+        <div id="main-cont"></div>
+        <br>
+        <div id="button-cont" style="margin-left: 20rem; margin-bottom: 1rem;">
+            <button type="button" id="boot-button" class="btn btn-dark">Add to basket</button>
+        </div>
+        <script>
+            window.onload = ()=>{
+                let params = window.location.search;
+                let urlParams = new URLSearchParams(params);
+                let productID = urlParams.get("id");
+                // http://127.0.0.1:8000/api/products/id 
+                if(productID != null && typeof(productID)!= 'undefined'){
+                    fetch('http://127.0.0.1:8000/api/products/'+productID)
+                    .then(resp => resp.json())
+                    .then(data => {
+                        console.log(data);
+                        if('detail' in data){
+                            // display some generic product not found error
+                            document.write("There was a problem with your request!");
+                        }
+                        else{
+                            let name = data['name'];
+                            let desc = data['description'];
+                            let price = data['price'];
+                            let image= data['image'];
+                            // display the product data
+                            // create a li element for each 
+                            console.log(data);
+                            let link = document.createElement("a");
+
+                            link.innerHTML = '<div class="card" style="width: 50rem; margin: auto; margin-bottom: 1rem; margin-top: 1rem;">' +
+                                            '<img class="card-img-top" style="padding: 1rem;" src="' + data['image'] + '" alt="Product image">' +
+                                                '<div class="card-body">' +
+                                                '<h5 class="card-title">' + data['name'] + ' - ' + data['price'] + '€' + '</h5>' +
+                                                '<p class="card-text">' + data['description'] + '</p>' +
+                                            '</div>' +
+                                            '</div>';
+
+                            console.log(link);
+                            document.getElementById("main-cont").appendChild(link);
+                                            
+                        }
+                    });
+                }
+                let addToCart = document.getElementById("boot-button"); // create a button
+                addToCart.onclick = ()=>{
+
+                    let accessToken = localStorage.getItem("access");
+                    // console.log(accessToken);
+                    // code for when the button is clicked
+                    fetch('http://127.0.0.1:8000/apiadd/', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer '+accessToken
+                        },
+                        body: JSON.stringify({
+                            "product_id": parseInt(productID)
+                        })
+                    })
+                    .then(response=>response.json())
+                    .then(data=>{
+                            // display an add to cart success message
+                            console.log(data, "working")
+                        });
+                    if (accessToken == "") {
+                        alert("Item has NOT been added to basket, please register or login");
+                    }
+                    else {
+                        alert("Item added to basket"); // Alert when an item is added to basket
+                    }
+                }
+                document.getElementById("button-cont").appendChild(addToCart)
+            }
+        </script>
+        <%- include('footer') -%>
+    </body>
+</html>

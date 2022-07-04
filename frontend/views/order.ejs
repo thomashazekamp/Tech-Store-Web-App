@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Order page</title>
+    </head>
+    <body>
+        <%- include('header') -%>
+        <form id="shipping-form" style="margin-left: 1rem;">
+            <label for="addr" style="margin-top: 5px;">Shipping Address:</label><br>
+            <input style="margin-top: 5px;" type="text" id="addr" name="addr"><br>
+            <button type="submit" style="margin-top: 5px;"  class="btn btn-dark">Order</button>
+        </form>
+
+        <script>
+            let shipForm = document.getElementById("shipping-form");
+
+            shipForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+
+                console.log("Order has been submitted");
+
+                let address = document.querySelector('#addr').value;
+                console.log(address)
+
+                let accessToken = localStorage.getItem("access");
+
+                fetch('http://127.0.0.1:8000/api/basket/', {
+                        method: 'GET',
+                        headers:{
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer '+accessToken
+                        }
+                    })
+                    .then(resp => resp.json())
+                    .then(data => {
+                        let basket = data[0];
+                        let basketID = basket['id'];
+                        let items = basket['items'];
+                        console.log(items);
+
+                        console.log(basketID);
+                        
+                        fetch("http://127.0.0.1:8000/apicheckout/", {
+                                method: 'POST',
+                                headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer '+accessToken
+                                },
+                                body: JSON.stringify({'basket_id': basketID, 'shipping_addr': address})
+                            })
+                    })
+                    alert("Items has been ordered");
+                    window.location.href = "/"
+            });
+        </script>
+        <%- include('footer') -%>
+    </body>
+</html>

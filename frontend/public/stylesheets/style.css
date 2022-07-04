@@ -1,0 +1,14 @@
+body {
+  /*padding: 20px; */
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+#intro-cont{
+  margin-left: 20rem;
+  margin-right: 20rem;
+  padding: 10px;
+}

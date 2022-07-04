@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Shopping Basket</title>
+    </head>
+    <body>
+        <%- include('header') -%>
+        <div id="order-cont">
+            <table id="order-table" class="table" style="width:100%">
+                <tr>
+                    <th>Order ID</th>
+                    <th>Ordered on</th>
+                    <th>Shipping to</th>
+                    <th>Total price</th>
+                </tr>
+            </table>
+        </div>
+        <script>
+            let accessToken = localStorage.getItem("access");
+
+            fetch('http://127.0.0.1:8000/api/orders/', {
+                method: 'GET',
+                headers:{
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer '+accessToken
+                }
+            })
+            .then(resp => resp.json())
+            .then(data => {
+                // console.log(data[0]);
+                if (data.length == 0) {
+                    let text = document.createElement("a");
+                    text.innerHTML = "You have no previous orders";
+                    document.getElementById("order-cont").appendChild(text);
+                } else {
+                    data.forEach(element => {
+                        console.log(element);
+                        let ord_id = element["id"];
+                        let tot_price = element["total_price"];
+                        let shipp_addr = element["shipping_addr"];
+                        let ord_date = element["datetime_ordered"].slice(0, 10) + ' ' + element["datetime_ordered"].slice(11, 16);
+
+                        let text = document.createElement("tr");
+                        text.innerHTML = "<td>" + ord_id + "</td>" + "<td>" + ord_date + "</td>" + "<td>" + shipp_addr + "</td>" + "<td>" + tot_price + '€' + "</td>";
+
+                        document.getElementById("order-table").appendChild(text);
+                        
+
+                        console.log(element["id"])
+                        });
+                }
+            })
+        </script>
+        <%- include('footer') -%>
+    </body>
+</html>

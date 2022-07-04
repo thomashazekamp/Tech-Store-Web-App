@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Shop</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <%- include('header') -%>
+    <div id="intro-cont">
+      <h1>Welcome to Tech All</h1>
+      <p>A wide variety of tech products are listed below.</p>
+    </div>
+    <div id="main-cont"></div>
+    <script>
+      fetch("http://127.0.0.1:8000/api/products")
+        .then(resp => resp.json())
+        .then(data => {
+            data.forEach(element => {
+                // create a li element for each 
+                console.log(element);
+                let link = document.createElement("a");
+                // /products?id=x
+                let productStr = "/productindividual?id=" + element['id'];
+                //tmpLi.appendChild(link);
+                link.innerHTML = '<div class="card" style="width: 50rem; margin: auto; margin-bottom: 5rem;">' +
+                                  '<img class="card-img-top" style="padding: 1rem;" src="' + element['image'] + '" alt="Product image">' +
+                                    '<div class="card-body">' +
+                                    '<h5 class="card-title">' + element['name'] + ' - ' + element['price'] + '€' + '</h5>' +
+                                    '<p class="card-text">' + element['description'] + '</p>' +
+                                    '<a href="'+ productStr + '" class="btn btn-dark">View Item</a>' +
+                                  '</div>' +
+                                '</div>';
+                console.log(link);
+                document.getElementById("main-cont").appendChild(link);
+            });
+        })
+      </script>
+    <%- include('footer') -%>
+  </body>
+</html>

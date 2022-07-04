@@ -1,0 +1,75 @@
+<html>
+    <head>
+			<title>Register Page</title>
+    </head>
+    <body>
+        <%- include('header') -%>
+        <form style="margin: auto; width: 75%;" id="register-form">
+            <h1>Register a new user</h1>
+            <div style="margin: 5px;" class="form-group">
+              <label for="exampleInputEmail1">Email address</label>
+              <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+              <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+            </div>
+            <div style="margin: 5px;" class="form-group">
+                <label for="exampleInputUsername1">Username</label>
+                <input type="text" class="form-control" id="exampleInputUsername1" aria-describedby="emailHelp" placeholder="Enter username">
+            </div>
+            <div style="margin: 5px;" class="form-group">
+              <label for="exampleInputPassword1">Password</label>
+              <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+            </div>
+            <button type="submit" style="margin: 5px;" class="btn btn-dark">Submit</button>
+          </form>
+        <script>
+            function formValidator(event){
+                event.preventDefault(); // always prevent default events when using javascript
+
+                // Get the value of email box
+                let email = document.getElementById("exampleInputEmail1").value;
+                // get the value the in the username box 
+                let username = document.getElementById("exampleInputUsername1").value; 
+                // get the value in the password box
+                let password = document.getElementById("exampleInputPassword1").value;
+                if( username == ""){
+                    alert("Username cannot be null");
+                    window.location.href = "/register" // back to login page if login fails
+                }
+                else if (password == ""){
+                    alert("Password cannot be null");
+                    window.location.href = "/register" // back to login page if login fails
+                }
+                else if (email == ""){
+                    alert("Email cannot be null");
+                    window.location.href = "/register";
+                }
+                else{
+                    // Fetch request to get token
+                    fetch("http://127.0.0.1:8000/apiregister/", {
+                        method: 'POST',
+                        headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({"username": username, "password": password, "email": email})
+                    }).then(response=>response.json())
+                    .then(data=>{
+                        console.log(data); // still log it so we can debug
+                        if(data["email"]){
+                            //successful register occurs if the return has the new users email
+                            window.location.href = "/login"; // the "/" is the homepage for node http://127.0.0.1:3000
+                        }
+                        else {
+                            alert("User already exists");
+                            window.location.href = "/register" // reload register page if user reg fails
+                        }
+                    });
+                }
+            }
+
+            let myform = document.getElementById("register-form"); // get the form
+            myform.addEventListener('submit', formValidator); // bind the validator function to the submit button for the form
+        </script>
+        <%- include('footer') -%>
+    </body>
+</html>
